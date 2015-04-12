@@ -56,11 +56,9 @@ ESPBAUD		?= 460800
 TARGET		= httpd
 
 
-
-
 # which modules (subdirectories) of the project to include in compiling
 #MODULES		= driver user lwip/api lwip/app lwip/core lwip/core/ipv4 lwip/netif
-MODULES		= espfs httpd user
+MODULES		= espfs httpd user fatfs fatfs/option
 EXTRA_INCDIR	= include \
 		. \
 		lib/heatshrink/
@@ -186,6 +184,9 @@ espfs/mkespfsimage/mkespfsimage: espfs/mkespfsimage/
 htmlflash: webpages.espfs
 	$(Q) if [ $$(stat -c '%s' webpages.espfs) -gt $$(( $(ESPFS_SIZE) )) ]; then echo "webpages.espfs too big!"; false; fi
 	$(Q) $(ESPTOOL) --port $(ESPPORT) --baud $(ESPBAUD) write_flash $(ESPFS_POS) webpages.espfs
+
+blankflash:
+	$(Q) $(ESPTOOL) --port $(ESPPORT) --baud $(ESPBAUD) write_flash 0x7E000 $(SDK_BASE)/bin/blank.bin
 
 clean:
 	$(Q) rm -f $(APP_AR)

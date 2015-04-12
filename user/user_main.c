@@ -14,12 +14,15 @@
 #include "httpd.h"
 #include "io.h"
 #include "httpdespfs.h"
+#include "httpdfatfs.h"
 #include "cgi.h"
 #include "cgiwifi.h"
 #include "cgiflash.h"
 #include "stdout.h"
 #include "auth.h"
 #include "espfs.h"
+#include "sdcard.h"
+#include "ff.h"
 
 //Function that tells the authentication system what users/passwords live on the system.
 //This is disabled in the default build; if you want to try it, enable the authBasic line in
@@ -50,7 +53,7 @@ general ones. Authorization things (like authBasic) act as a 'barrier' and
 should be placed above the URLs they protect.
 */
 HttpdBuiltInUrl builtInUrls[]={
-	{"/", cgiRedirect, "/index.tpl"},
+//	{"/", cgiRedirect, "/index.tpl"},
 	{"/flash.bin", cgiReadFlash, NULL},
 	{"/led.tpl", cgiEspFsTemplate, tplLed},
 	{"/index.tpl", cgiEspFsTemplate, tplCounter},
@@ -69,10 +72,14 @@ HttpdBuiltInUrl builtInUrls[]={
 	{"/wifi/connect.cgi", cgiWiFiConnect, NULL},
 	{"/wifi/setmode.cgi", cgiWifiSetMode, NULL},
 
+	{"*", cgiFatFsHook, NULL}, //Catch-all cgi function for the filesystem
+	{"*", cgiFatFsDirHook, NULL}, //Catch-all cgi function for the filesystem
 	{"*", cgiEspFsHook, NULL}, //Catch-all cgi function for the filesystem
 	{NULL, NULL, NULL}
 };
 
+
+static FATFS fatfs;
 
 //Main routine. Initialize stdout, the I/O, filesystem and the webserver and we're done.
 void user_init(void) {
@@ -82,6 +89,7 @@ void user_init(void) {
 	// 0x40200000 is the base address for spi flash memory mapping, 0x12000 is the position
 	// where image is written in flash
 	espFsInit((void*)(0x40200000 + 0x12000));
+	f_mount(&fatfs, (const TCHAR *)"", 0);
 	httpdInit(builtInUrls, 80);
 	os_printf("\nReady\n");
 }

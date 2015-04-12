@@ -63,6 +63,7 @@ static const MimeMap mimeTypes[]={
 	{"jpg", "image/jpeg"},
 	{"jpeg", "image/jpeg"},
 	{"png", "image/png"},
+	{"JPG", "image/jpeg"},
 	{NULL, "text/html"}, //default value
 };
 
