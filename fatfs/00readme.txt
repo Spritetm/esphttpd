@@ -1,3 +1,9 @@
+This is Elm-chans fatfs, modified a bit to put the routines inside the flash of
+the ESP instead of in the RAM, and to work in the Makefile format esphttpd uses.
+Fatfs lives at http://elm-chan.org/fsw/ff/00index_e.html
+
+Original readme:
+
 FatFs Module Source Files R0.11
 
 
