@@ -30,7 +30,9 @@
 #define MISO_PIN 12
 
 
-#define SETCS(v) GPIO_OUTPUT_SET(CS_PIN, (v)?1:0)
+#define SETCS(v) { \
+	if (v) gpio_output_set((1<<CS_PIN), 0, (1<<CS_PIN), 0); \
+	else gpio_output_set(0, (1<<CS_PIN), (1<<CS_PIN), 0); } while(0)
 
 static int needByteAddr;
 
@@ -57,7 +59,7 @@ static int spiRecv(void) {
 
 	//SPI_FLASH_USER2 bit28-31 is cmd length,cmd bit length is value(0-15)+1,
 	// bit15-0 is cmd value.
-//	WRITE_PERI_REG(SPI_USER2(1), ((7 & SPI_USR_COMMAND_BITLEN) << SPI_USR_COMMAND_BITLEN_S));
+	WRITE_PERI_REG(SPI_USER2(1), ((7 & SPI_USR_COMMAND_BITLEN) << SPI_USR_COMMAND_BITLEN_S)|6);
 
 	SET_PERI_REG_MASK(SPI_CMD(1), SPI_USR);
 	while(READ_PERI_REG(SPI_CMD(1)) & SPI_USR);
@@ -117,6 +119,7 @@ int ICACHE_FLASH_ATTR sdcardCmd(int cmd, uint32_t arg) {
 	if (cmd==STOP_TRANSMISSION) {
 		SETCS(1);
 		spiSend(0xff);
+		spiSend(0xff);
 		SETCS(0);
 	}
 	spiSend(0xff);
@@ -137,7 +140,7 @@ int ICACHE_FLASH_ATTR sdcardCmd(int cmd, uint32_t arg) {
 	do {
 		resp=spiRecv();
 		failTimer--;
-		if (resp==0xff) os_delay_us(100);
+//		if (resp==0xff) os_delay_us(100);
 	} while (resp==0xff && failTimer!=0);
 	os_printf("SD cmd %d resp 0x%x\n", cmd, resp);
 	return resp;
