@@ -91,4 +91,21 @@ please. The reason for this is that you can't do multiple espconn_sent calls ser
 httpd needs to buffer the writes now. This is only needed in your own code; the code that comes
 with httpd already has this changed.
 
+IF YOU ARE HAVING TROUBLE COMPILING
+
+(from: http://www.esp8266.com/viewtopic.php?p=20020#p20020)
+If you are using the esp-open-sdk, you need to edit esp-open-sdk/sdk/includes/c_types.h and on 
+line 11 change #if 0 to #if 1
+
+Apparently this will break the examples and projects based on the sdk (i.e. blinky)
+
+you need to also edit the esphttpd/user/user_main.c file and commenct out void user_rf_pre_init() 
+or else the compile will fail
+
+It also won't work unless you build the sdk as STANDALONE=y
+
+If you are using the vagrant box from https://github.com/matthew-james/esp-vagrant, the box startup 
+sets XTENSA_TOOLS_ROOT for you, but doesn't set a trailing slash. As such you should either 
+unset XTENSA_TOOLS_ROOT or do XTENSA_TOOLS_ROOT=${XTENSA_TOOLS_ROOT}/. Editing the Makefile for 
+esphttpd and libesphttpd also works.
 
